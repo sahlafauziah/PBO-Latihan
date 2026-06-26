@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFF8EF">
+<title>Fokus — Produktivitas Harian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="topbar__greet">
+      <span class="topbar__hi">Hai, {{ user.username }} 👋</span>
+      <span class="topbar__date" id="todayDate">—</span>
+    </div>
+    <button class="bell-btn" id="enableNotifBtn" title="Aktifkan notifikasi">
+      <span id="bellIcon">🔔</span>
+    </button>
+  </header>
+
+  <main class="screens">
+
+    <!-- ============ SCREEN: HOME / RINGKASAN ============ -->
+    <section class="screen is-active" data-screen="home">
+
+      <div class="score-card">
+        <div class="score-card__ring-wrap">
+          <svg class="score-ring" viewBox="0 0 140 140">
+            <circle class="score-ring__track" cx="70" cy="70" r="58"></circle>
+            <circle class="score-ring__progress" id="scoreRingProgress" cx="70" cy="70" r="58"></circle>
+          </svg>
+          <div class="score-ring__center">
+            <span class="score-ring__num" id="scoreValue">—</span>
+            <span class="score-ring__label">skor hari ini</span>
+          </div>
+        </div>
+        <p class="score-card__msg" id="scoreMessage">Memuat ringkasan...</p>
+      </div>
+
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span class="mini-stat__icon">📱</span>
+          <span class="mini-stat__value" id="miniScreenTime">—</span>
+          <span class="mini-stat__label">screen time</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat__icon">⏰</span>
+          <span class="mini-stat__value" id="miniReminders">—</span>
+          <span class="mini-stat__label">pengingat aktif</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat__icon">✅</span>
+          <span class="mini-stat__value" id="miniTasks">—</span>
+          <span class="mini-stat__label">tugas selesai</span>
+        </div>
+      </div>
+
+      <h3 class="section-heading">Agenda terdekat</h3>
+      <ul class="agenda-list" id="agendaList">
+        <li class="empty-hint">Belum ada jadwal hari ini.</li>
+      </ul>
+
+      <div class="active-hours-row">
+        <h3 class="section-heading section-heading--inline">Waktu kosong untuk belajar</h3>
+        <button class="link-btn" id="editActiveHoursBtn">Atur jam aktif</button>
+      </div>
+      <p class="active-hours-hint" id="activeHoursHint">Jam aktif: 06:00 – 22:00</p>
+      <ul class="freeslot-list" id="freeSlotList">
+        <li class="empty-hint">Memuat slot kosong...</li>
+      </ul>
+
+      <form class="card-form" id="activeHoursForm" hidden>
+        <label class="field-label">Atur jam aktif harian</label>
+        <div class="field-row field-row--triple">
+          <input type="time" id="activeStartInput" required>
+          <input type="time" id="activeEndInput" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">Simpan Jam Aktif</button>
+      </form>
+
+    </section>
+
+    <!-- ============ SCREEN: SCREEN TIME ============ -->
+    <section class="screen" data-screen="screentime">
+      <h2 class="screen-title">Screen Time</h2>
+
+      <!-- Timer countdown: batasi sesi penggunaan HP -->
+      <div class="dial-card">
+        <div class="dial-wrap">
+          <svg class="dial" viewBox="0 0 200 200">
+            <circle class="dial__track" cx="100" cy="100" r="84"></circle>
+            <circle class="dial__progress" id="timerProgress" cx="100" cy="100" r="84"></circle>
+          </svg>
+          <div class="dial__center">
+            <span class="dial__num" id="timerDisplay">00:00</span>
+            <span class="dial__unit" id="timerUnit">menit:detik</span>
+          </div>
+        </div>
+        <p class="dial-card__status" id="timerStatus">Set durasi, lalu mulai sesi penggunaan HP-mu.</p>
+      </div>
+
+      <div class="quick-add" id="timerSetupArea">
+        <span class="quick-add__label">Set durasi cepat</span>
+        <div class="quick-add__row">
+          <button class="chip" data-timer-minutes="1">1m</button>
+          <button class="chip" data-timer-minutes="5">5m</button>
+          <button class="chip" data-timer-minutes="15">15m</button>
+          <button class="chip" data-timer-minutes="30">30m</button>
+        </div>
+      </div>
+
+      <form class="card-form" id="startTimerForm">
+        <label class="field-label">Atau masukkan durasi sendiri (menit)</label>
+        <div class="field-row">
+          <input type="number" id="timerMinutesInput" min="1" placeholder="contoh: 1" inputmode="numeric" required>
+          <button type="submit" class="btn btn--primary" id="startTimerBtn">Mulai</button>
+        </div>
+      </form>
+
+      <div class="today-total-card">
+        <span class="today-total-card__label">Total screen time hari ini</span>
+        <div class="today-total-card__row">
+          <span class="today-total-card__value" id="todayTotalValue">0 menit</span>
+          <span class="today-total-card__badge" id="todayTotalBadge">Aman</span>
+        </div>
+        <p class="today-total-card__status" id="usageStatus">Belum ada aktivitas tercatat.</p>
+      </div>
+
+      <form class="card-form" id="setLimitForm">
+        <label class="field-label">Target screen time harian (menit)</label>
+        <div class="field-row">
+          <input type="number" id="limitInput" min="1" placeholder="180" inputmode="numeric" required>
+          <button type="submit" class="btn btn--ghost">Simpan</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============ SCREEN: REMINDERS ============ -->
+    <section class="screen" data-screen="reminders">
+      <h2 class="screen-title">Jadwal &amp; Pengingat</h2>
+
+      <form class="card-form" id="reminderForm">
+        <label class="field-label">Pengingat baru</label>
+        <input type="text" id="reminderTitle" placeholder="misal: Belajar Basis Data" required>
+        <div class="field-row field-row--triple">
+          <input type="time" id="reminderTime" required>
+          <select id="reminderRepeat">
+            <option value="sekali">Sekali</option>
+            <option value="setiap hari">Tiap hari</option>
+            <option value="hari kerja">Hari kerja</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">Tambah Pengingat</button>
+      </form>
+
+      <ul class="item-list" id="reminderList">
+        <li class="empty-hint">Belum ada pengingat.</li>
+      </ul>
+    </section>
+
+    <!-- ============ SCREEN: TASKS ============ -->
+    <section class="screen" data-screen="tasks">
+      <h2 class="screen-title">Daftar Tugas</h2>
+
+      <form class="card-form" id="taskForm">
+        <label class="field-label">Tugas baru</label>
+        <input type="text" id="taskTitle" placeholder="misal: Laporan Praktikum PBO" required>
+        <div class="field-row field-row--triple">
+          <input type="date" id="taskDeadline">
+          <select id="taskPriority">
+            <option value="rendah">Rendah</option>
+            <option value="sedang" selected>Sedang</option>
+            <option value="tinggi">Tinggi</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">Tambah Tugas</button>
+      </form>
+
+      <ul class="item-list" id="taskList">
+        <li class="empty-hint">Belum ada tugas.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottomnav">
+    <button class="bottomnav__item is-active" data-nav="home">
+      <span class="bottomnav__icon">🏠</span>
+      <span class="bottomnav__label">Home</span>
+    </button>
+    <button class="bottomnav__item" data-nav="screentime">
+      <span class="bottomnav__icon">📱</span>
+      <span class="bottomnav__label">Screen</span>
+    </button>
+    <button class="bottomnav__item" data-nav="reminders">
+      <span class="bottomnav__icon">⏰</span>
+      <span class="bottomnav__label">Jadwal</span>
+    </button>
+    <button class="bottomnav__item" data-nav="tasks">
+      <span class="bottomnav__icon">✅</span>
+      <span class="bottomnav__label">Tugas</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ============ MODAL: WAKTU HABIS ============ -->
+<div class="modal-overlay" id="timeUpModal" hidden>
+  <div class="modal-card">
+    <span class="modal-card__icon">⏰</span>
+    <h3 class="modal-card__title">Waktu Habis!</h3>
+    <p class="modal-card__text" id="timeUpModalText">Sesi screen time-mu sudah selesai.</p>
+    <button class="btn btn--primary btn--full" id="timeUpModalOkBtn">OK, Mengerti</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
